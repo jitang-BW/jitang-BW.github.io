@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+    <id>https://jitang-BW.github.io</id>
+    <title>BW-jitang</title>
+    <updated>2023-10-31T11:53:04.198Z</updated>
+    <generator>https://github.com/jpmonette/feed</generator>
+    <link rel="alternate" href="https://jitang-BW.github.io"/>
+    <link rel="self" href="https://jitang-BW.github.io/atom.xml"/>
+    <subtitle>温故而知新</subtitle>
+    <logo>https://jitang-BW.github.io/images/avatar.png</logo>
+    <icon>https://jitang-BW.github.io/favicon.ico</icon>
+    <rights>All rights reserved 2023, BW-jitang</rights>
+    <entry>
+        <title type="html"><![CDATA[科协第五次培训]]></title>
+        <id>https://jitang-BW.github.io/post/M3RmIrmse/</id>
+        <link href="https://jitang-BW.github.io/post/M3RmIrmse/">
+        </link>
+        <updated>2023-10-30T10:28:56.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[科协第四次培训]]></title>
+        <id>https://jitang-BW.github.io/post/E2wr5XYhK/</id>
+        <link href="https://jitang-BW.github.io/post/E2wr5XYhK/">
+        </link>
+        <updated>2023-10-25T11:02:38.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[0Xgame ctf pwn]]></title>
+        <id>https://jitang-BW.github.io/post/h2k7sf1MR/</id>
+        <link href="https://jitang-BW.github.io/post/h2k7sf1MR/">
+        </link>
+        <updated>2023-10-23T11:11:46.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[NSSCTF pwn 刷题记录]]></title>
+        <id>https://jitang-BW.github.io/post/NrNDng88U/</id>
+        <link href="https://jitang-BW.github.io/post/NrNDng88U/">
+        </link>
+        <updated>2023-10-23T11:02:17.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[科协第二次培训]]></title>
+        <id>https://jitang-BW.github.io/post/w8eYLX-LU/</id>
+        <link href="https://jitang-BW.github.io/post/w8eYLX-LU/">
+        </link>
+        <updated>2023-10-18T11:01:19.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ROP Emporium]]></title>
+        <id>https://jitang-BW.github.io/post/o-NTZCAjB/</id>
+        <link href="https://jitang-BW.github.io/post/o-NTZCAjB/">
+        </link>
+        <updated>2023-10-10T10:58:46.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[2023 newstarctf新生赛 week1 pwn]]></title>
+        <id>https://jitang-BW.github.io/post/ZIZN_yt8a/</id>
+        <link href="https://jitang-BW.github.io/post/ZIZN_yt8a/">
+        </link>
+        <updated>2023-10-08T04:57:29.000Z</updated>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[ELF文件]]></title>
+        <id>https://jitang-BW.github.io/post/elf-wen-jian/</id>
+        <link href="https://jitang-BW.github.io/post/elf-wen-jian/">
+        </link>
+        <updated>2023-10-01T04:59:24.000Z</updated>
+        <summary type="html"><![CDATA[<h1 id="1elf简介"><strong>1.ELF简介</strong></h1>
+<p>可执行与可链接格式 （Executable and Linkable Format，ELF），常被称为 ELF格式，是一种用于可执行文件、目标代码、共享库和核心转储（core dump）的标准文件格式，一般用于类Unix系统，比如Linux，Macox等。ELF 格式灵活性高、可扩展，并且跨平台。比如它支持不同的字节序和地址范围，所以它不会不兼容某一特别的 CPU 或指令架构。这也使得 ELF 格式能够被运行于众多不同平台的各种操作系统所广泛采纳。</p>
+<h1 id="2elf文件类型"><strong>2.ELF文件类型</strong></h1>
+<p>ELF文件一般由四种类型的文件：<br>
+可重定向文件：文件保存着代码和适当的数据，用来和其他的目标文件一起来创建一个可执行文件或者是一个共享目标文件。比如编译的中间产物.o文件；<br>
+可执行文件：一个可执行文件；<br>
+共享目标文件：共享库。文件保存着代码和合适的数据，用来被下连接编辑器和动态链接器链接。比如linux下的.so文件。<br>
+核心转储文件：进程意外终止时，系统可以将该进程的地址空间的内容及终止时的一些其他信息转储到核心转储文件。</p>
+<h1 id="3elf文件组成"><strong>3.ELF文件组成</strong></h1>
+<p>ELF文件主要由四个部分组成 1.ELF头(ELF header），2.程序头表（Program header），3.节（Section），4节头表（Section header table）。</p>
+<h2 id="elf头"><strong>ELF头</strong></h2>
+<pre><code>#define EI_NIDENT 16
+typedef struct{
+　　unsigned char e_ident[EI_NIDENT];
+　　Elf32_Half e_type;
+　　Elf32_Half e_machine;
+　　Elf32_Word e_version;
+　　Elf32_Addr e_entry;
+　　Elf32_Off e_phoff;
+　　Elf32_Off e_shoff;
+　　Elf32_Word e_flags;
+　　Elf32_Half e_ehsize;
+　　Elf32_Half e_phentsize;
+　　Elf32_Half e_phnum;
+　　Elf32_Half e_shentsize;
+　　Elf32_Half e_shnum;
+　　Elf32_Half e_shstrndx;
+　　}Elf32_Ehdr;
+</code></pre>
+<p>e_ident作为开头主要用装一些标示信息，固定值来判断ELF文件的合法性，其开头4个字节固定为0x7f， ELF三个字符。</p>
+<p>e_type是用来标志文件类型的比如有1.可重定位文件，2.可执行文件，3.共享目标文件</p>
+<p>e_machine来用标志运行文件的机器类型</p>
+<p>e_version表示文件的版本</p>
+<p>e_entry 程序的入口的虚拟地址，作为执行文件可以作为执行向量地址</p>
+<p>e_phoff 表示程序表头相对于文件头的偏移量</p>
+<p>e_shoff 表示节头表相对于文件头的编移量</p>
+<p>e_flags 与文件相关的，特定处理器的标志</p>
+<p>e_ehsize 表示ELF头部的大小（单位字节）</p>
+<p>e_phentsize 表示每个程序头表条目大小（单位字节）</p>
+<p>e_phnum  表示有多少个程序头条目</p>
+<p>e_shentsize 表示每个节头表的条目大小</p>
+<p>e_shnum 表示有多少个节头表条目\n\ne_shstrndx 包含节名称的字符串，作为一个符号表</p>
+<h3 id="e_phoff的作用">e_phoff的作用</h3>
+<p>e_phoff加上文件的头地址就能定位到程序头表的位置</p>
+]]></summary>
+        <content type="html"><![CDATA[<h1 id="1elf简介"><strong>1.ELF简介</strong></h1>
+<p>可执行与可链接格式 （Executable and Linkable Format，ELF），常被称为 ELF格式，是一种用于可执行文件、目标代码、共享库和核心转储（core dump）的标准文件格式，一般用于类Unix系统，比如Linux，Macox等。ELF 格式灵活性高、可扩展，并且跨平台。比如它支持不同的字节序和地址范围，所以它不会不兼容某一特别的 CPU 或指令架构。这也使得 ELF 格式能够被运行于众多不同平台的各种操作系统所广泛采纳。</p>
+<h1 id="2elf文件类型"><strong>2.ELF文件类型</strong></h1>
+<p>ELF文件一般由四种类型的文件：<br>
+可重定向文件：文件保存着代码和适当的数据，用来和其他的目标文件一起来创建一个可执行文件或者是一个共享目标文件。比如编译的中间产物.o文件；<br>
+可执行文件：一个可执行文件；<br>
+共享目标文件：共享库。文件保存着代码和合适的数据，用来被下连接编辑器和动态链接器链接。比如linux下的.so文件。<br>
+核心转储文件：进程意外终止时，系统可以将该进程的地址空间的内容及终止时的一些其他信息转储到核心转储文件。</p>
+<h1 id="3elf文件组成"><strong>3.ELF文件组成</strong></h1>
+<p>ELF文件主要由四个部分组成 1.ELF头(ELF header），2.程序头表（Program header），3.节（Section），4节头表（Section header table）。</p>
+<h2 id="elf头"><strong>ELF头</strong></h2>
+<pre><code>#define EI_NIDENT 16
+typedef struct{
+　　unsigned char e_ident[EI_NIDENT];
+　　Elf32_Half e_type;
+　　Elf32_Half e_machine;
+　　Elf32_Word e_version;
+　　Elf32_Addr e_entry;
+　　Elf32_Off e_phoff;
+　　Elf32_Off e_shoff;
+　　Elf32_Word e_flags;
+　　Elf32_Half e_ehsize;
+　　Elf32_Half e_phentsize;
+　　Elf32_Half e_phnum;
+　　Elf32_Half e_shentsize;
+　　Elf32_Half e_shnum;
+　　Elf32_Half e_shstrndx;
+　　}Elf32_Ehdr;
+</code></pre>
+<p>e_ident作为开头主要用装一些标示信息，固定值来判断ELF文件的合法性，其开头4个字节固定为0x7f， ELF三个字符。</p>
+<p>e_type是用来标志文件类型的比如有1.可重定位文件，2.可执行文件，3.共享目标文件</p>
+<p>e_machine来用标志运行文件的机器类型</p>
+<p>e_version表示文件的版本</p>
+<p>e_entry 程序的入口的虚拟地址，作为执行文件可以作为执行向量地址</p>
+<p>e_phoff 表示程序表头相对于文件头的偏移量</p>
+<p>e_shoff 表示节头表相对于文件头的编移量</p>
+<p>e_flags 与文件相关的，特定处理器的标志</p>
+<p>e_ehsize 表示ELF头部的大小（单位字节）</p>
+<p>e_phentsize 表示每个程序头表条目大小（单位字节）</p>
+<p>e_phnum  表示有多少个程序头条目</p>
+<p>e_shentsize 表示每个节头表的条目大小</p>
+<p>e_shnum 表示有多少个节头表条目\n\ne_shstrndx 包含节名称的字符串，作为一个符号表</p>
+<h3 id="e_phoff的作用">e_phoff的作用</h3>
+<p>e_phoff加上文件的头地址就能定位到程序头表的位置</p>
+]]></content>
+    </entry>
+</feed>

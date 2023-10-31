@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>科协第五次培训 | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="介绍
+定义：存储地址的整数
+基础
+定义两个指针： int *p1,*p2;
+const int *p1:
+多重指针
+函数指针
+void function1()
+{
+    printf(&quot;QAQ\n&quot;);
+}
+void ..." />
+    <meta name="keywords" content="科协培训" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">科协第五次培训</h2>
+            <div class="post-date">2023-10-30</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="介绍">介绍</h1>
+<p>定义：存储地址的整数</p>
+<h1 id="基础">基础</h1>
+<p>定义两个指针： int *p1,*p2;<br>
+const int *p1:</p>
+<h1 id="多重指针">多重指针</h1>
+<h1 id="函数指针">函数指针</h1>
+<pre><code>void function1()
+{
+    printf(&quot;QAQ\n&quot;);
+}
+void function2()
+{
+    printf(&quot;QWQ\n&quot;);
+}
+int main()
+{
+    void (*p)()=function1;
+    p();
+    p=funtion2；
+    p();
+}
+</code></pre>
+<h1 id="动态内存分配">动态内存分配</h1>
+<h1 id="malloc">Malloc</h1>
+<p>堆上分配一块内存，需要通过free手动释放<br>
+<code>int *p=(int*) malloc(sizeof(int)); </code></p>
+<p>int a</p>
+<h1 id="字符串">字符串</h1>
+<h2 id="声明">声明</h2>
+<ol>
+<li>以字符数组方式声明<br>
+<code>char t[]=&quot;hello worold&quot;;</code></li>
+<li>以字符指针方式声明<br>
+<code>char *t=&quot;hello world&quot;;</code><br>
+保存到只读区</li>
+</ol>
+<h1 id="输入输出">输入&amp;输出</h1>
+<pre><code>        scanf(&quot;%s&quot;,str);
+        scanf(&quot;%[^\n]&quot;,str);
+        gets(str);//不安全，会将全部 字符读入， 
+        fgets(str,100,stdin);//读入100个字符 ，也会读入回车 
+</code></pre>
+<h1 id="函数">函数</h1>
+<p>头文件string.h<br>
+拷贝：st<br>
+结构体</p>
+<p>typedef : 为已有的数据类型定义一个新名字,我们可以通过typedef关键字给我们自己的结构体更改一个名字，这样就不用在每次声明变量前加struct了</p>
+<h2 id="内存对齐规则">内存对齐规则</h2>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://jitang-BW.github.io/tag/akSj2zvhp/" class="tag">
+                    科协培训
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/E2wr5XYhK/">
+                  <h3 class="post-title">
+                    科协第四次培训
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

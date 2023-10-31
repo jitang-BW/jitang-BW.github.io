@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" >
+
+<title>科协第二次培训 | BW-jitang</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://jitang-BW.github.io/favicon.ico?v=1698753168785">
+<link rel="stylesheet" href="https://jitang-BW.github.io/styles/main.css">
+
+
+
+<link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+
+
+    <meta name="description" content="一. 实用技巧
+快捷键
+复制粘贴剪切撤回
+Ctrl c/v/x/z
+移动代码块
+A|t 鼠标拖动
+快速复制
+A|t shift加上下
+注释代码
+//
+缩进
+tab
+删除单个单词
+Ctrl backspace
+实用工具
+截图
+Ctrl A|t..." />
+    <meta name="keywords" content="科协培训" />
+  </head>
+  <body>
+    <div id="app" class="main">
+
+      <div class="sidebar" :class="{ 'full-height': menuVisible }">
+  <div class="top-container" data-aos="fade-right">
+    <div class="top-header-container">
+      <a class="site-title-container" href="https://jitang-BW.github.io">
+        <img src="https://jitang-BW.github.io/images/avatar.png?v=1698753168785" class="site-logo">
+        <h1 class="site-title">BW-jitang</h1>
+      </a>
+      <div class="menu-btn" @click="menuVisible = !menuVisible">
+        <div class="line"></div>
+      </div>
+    </div>
+    <div>
+      
+        
+          <a href="/" class="site-nav">
+            首页
+          </a>
+        
+      
+        
+          <a href="/archives" class="site-nav">
+            归档
+          </a>
+        
+      
+        
+          <a href="/tags" class="site-nav">
+            标签
+          </a>
+        
+      
+        
+          <a href="/post/about" class="site-nav">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+  <div class="bottom-container" data-aos="flip-up" data-aos-offset="0">
+    <div class="social-container">
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    </div>
+    <div class="site-description">
+      温故而知新
+    </div>
+    <div class="site-footer">
+      Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://jitang-BW.github.io/atom.xml" target="_blank">RSS</a>
+    </div>
+  </div>
+</div>
+
+
+      <div class="main-container">
+        <div class="content-container" data-aos="fade-up">
+          <div class="post-detail">
+            <h2 class="post-title">科协第二次培训</h2>
+            <div class="post-date">2023-10-18</div>
+            
+            <div class="post-content" v-pre>
+              <h1 id="一-实用技巧">一. 实用技巧</h1>
+<h2 id="快捷键">快捷键</h2>
+<p>复制粘贴剪切撤回<br>
+Ctrl c/v/x/z</p>
+<p>移动代码块<br>
+A|t 鼠标拖动</p>
+<p>快速复制<br>
+A|t shift加上下</p>
+<p>注释代码<br>
+//</p>
+<p>缩进<br>
+tab</p>
+<p>删除单个单词<br>
+Ctrl backspace</p>
+<h2 id="实用工具">实用工具</h2>
+<p>截图<br>
+Ctrl A|t a/win shift s</p>
+<p>录制<br>
+win G</p>
+<p>笔记<br>
+Tpora Obsidian 飞书云文档 Hexo搭建博客</p>
+<p>视频课资源<br>
+b站 慕课</p>
+<p>文件查找<br>
+everything</p>
+<p>思维导图<br>
+Xmind</p>
+<p>电脑防护<br>
+火绒</p>
+<p>博客&amp;文档<br>
+知乎 稀土掘金 stack overflow github gpt</p>
+<h1 id="二-输入输出">二. 输入输出</h1>
+<h2 id="输出">输出</h2>
+<h3 id="printf">printf</h3>
+<pre><code>printf(&quot;输出你的数&quot;, 数字);
+printf(&quot;输出你的数&quot;);
+printf(&quot;%d %d&quot;, a);
+
+%d %c %o %x %p %s %u
+</code></pre>
+<p>eg:</p>
+<pre><code>int main (void) {
+    printf (&quot;%X&quot;, 316);
+}
+</code></pre>
+<h3 id="其他输出">其他输出</h3>
+<pre><code>putchar ();
+
+puts();
+</code></pre>
+<h2 id="数据类型">数据类型</h2>
+<figure data-type="image" tabindex="1"><img src="https://jitang-BW.github.io/post-images/1697628065182.jpg" alt="" loading="lazy"></figure>
+<h2 id="输入">输入</h2>
+<h3 id="scanf">scanf</h3>
+<pre><code>scanf (&quot;%d&quot;, a);
+</code></pre>
+<p>双引号内最好只有控制字符<br>
+scanf跳过空白字符，以删除的方式在缓冲区进行读取</p>
+<p>可以起到阻塞函数的作用</p>
+<h3 id="其他">其他</h3>
+<pre><code>getchar();
+
+read(  ,  ,  );
+
+gets();
+
+fgets();
+</code></pre>
+<p>注意：栈溢出等安全性问题</p>
+<h1 id="三-代码规范">三. 代码规范</h1>
+<h2 id="空行">空行</h2>
+<h2 id="空格">空格</h2>
+<h2 id="注释">注释</h2>
+<p>注释量大概要在20%左右<br>
+是提示而不是文档<br>
+没用注释要删掉<br>
+多重嵌套时在最后要写个注释<br>
+每条宏定义右侧写一个注释，说明宏的含义</p>
+<h1 id="四-一些语法">四. 一些语法</h1>
+<h2 id="表达式">表达式</h2>
+<p>= + - -- ++ &lt; &gt; &lt;= &gt;=</p>
+<h2 id="特性">特性</h2>
+<p>短路特性<br>
+&amp;&amp; ||</p>
+<h2 id="if-else用法">if else用法</h2>
+<h3 id="优化">优化</h3>
+<p>条件的合并</p>
+<h2 id="三目运算符">三目运算符</h2>
+<p>结果 = 表达式1 ? 表达式2 : 表达式3<br>
+表达式1成立，执行表达式2，否则执行表达式3</p>
+<h2 id="switch-case">switch case</h2>
+<p>注意：case后只能放常量（宏定义的数字算常量）</p>
+<h1 id="五-循环">五. 循环</h1>
+<h2 id="if-循环">if 循环</h2>
+<pre><code>if (   ) {
+
+} else if (   ) {
+
+}
+</code></pre>
+<h2 id="while-循环和-do-while-循环">while 循环和 do-while 循环</h2>
+<pre><code>while () {
+
+}
+
+do {
+
+} while (    )
+</code></pre>
+<h2 id="for-循环">for 循环</h2>
+<pre><code>for (    ;     ;     ) {
+
+}
+</code></pre>
+<h2 id="contiune-和-break">contiune 和 break</h2>
+<p>c为截止后继续执行<br>
+b为停止</p>
+
+            </div>
+            
+              <div class="tag-container">
+                
+                  <a href="https://jitang-BW.github.io/tag/akSj2zvhp/" class="tag">
+                    科协培训
+                  </a>
+                
+              </div>
+            
+            
+              <div class="next-post">
+                <div class="next">下一篇</div>
+                <a href="https://jitang-BW.github.io/post/o-NTZCAjB/">
+                  <h3 class="post-title">
+                    ROP Emporium
+                  </h3>
+                </a>
+              </div>
+            
+
+            
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+<script type="application/javascript">
+
+AOS.init();
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+  <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad()
+  </script>
+
+
+
+
+
+  </body>
+</html>
